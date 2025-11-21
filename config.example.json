@@ -1,0 +1,55 @@
+{
+  "_comment": "Cấu hình Dynamic DNS cho Cloudflare - Đổi tên file này thành config.json để sử dụng",
+
+  "telegram": {
+    "_comment": "Thông tin Telegram bot (optional - bỏ qua nếu không cần thông báo)",
+    "botToken": "YOUR_TELEGRAM_BOT_TOKEN",
+    "chatId": "YOUR_TELEGRAM_CHAT_ID"
+  },
+
+  "defaults": {
+    "_comment": "Giá trị mặc định cho tất cả domains (có thể override từng domain)",
+    "apiToken": "YOUR_DEFAULT_CLOUDFLARE_API_TOKEN",
+    "ttl": 60,
+    "proxied": false,
+    "checkIntervalSeconds": 60
+  },
+
+  "domains": [
+    {
+      "_comment": "Domain chính - dùng default apiToken",
+      "name": "example.com",
+      "zoneId": "YOUR_ZONE_ID_FOR_EXAMPLE_COM"
+    },
+
+    {
+      "_comment": "Subdomain - dùng default apiToken",
+      "name": "www.example.com",
+      "zoneId": "YOUR_ZONE_ID_FOR_EXAMPLE_COM"
+    },
+
+    {
+      "_comment": "Domain khác - có apiToken riêng",
+      "name": "another-domain.com",
+      "zoneId": "ANOTHER_ZONE_ID",
+      "apiToken": "CUSTOM_API_TOKEN_FOR_THIS_DOMAIN"
+    },
+
+    {
+      "_comment": "Domain với cấu hình custom TTL và proxied",
+      "name": "custom.example.com",
+      "zoneId": "YOUR_ZONE_ID_FOR_EXAMPLE_COM",
+      "ttl": 120,
+      "proxied": true
+    },
+
+    {
+      "_comment": "Domain hoàn toàn độc lập - có token, zone, TTL riêng",
+      "name": "independent.com",
+      "zoneId": "INDEPENDENT_ZONE_ID",
+      "apiToken": "INDEPENDENT_API_TOKEN",
+      "ttl": 300,
+      "proxied": false
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "auto-cloudflare-ddns",
+  "version": "2.0.0",
+  "description": "Auto update Cloudflare DNS records when public IP changes",
+  "main": "cloudflare-ddns.js",
+  "scripts": {
+    "start": "node cloudflare-ddns.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["cloudflare", "ddns", "dynamic-dns", "telegram"],
+  "author": "Tam Cong Nghe",
+  "license": "ISC",
+  "dependencies": {}
+}
