@@ -39,7 +39,7 @@ function loadConfig() {
     // Domains
     if (config.domains && Array.isArray(config.domains)) {
       DOMAINS = config.domains
-        .filter(d => !d._comment) // Bỏ qua comment entries
+        .filter(d => d.name && d.zoneId) // Chỉ lấy domain có name và zoneId hợp lệ
         .map(d => ({
           name: d.name,
           zoneId: d.zoneId,
