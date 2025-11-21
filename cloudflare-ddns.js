@@ -1,11 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 
-// Config variables
+// Thời gian đợi network sẵn sàng khi khởi động (giây)
+const STARTUP_DELAY_SECONDS = 60;
+
+// Số lần thử lại khi khởi động nếu không lấy được IP
+const STARTUP_RETRIES = 5;
+
+// Thời gian kiểm tra IP định kỳ (giây)
+const CHECK_INTERVAL_SECONDS = 60; // 1 phút
+
+// Config variables (sẽ được load từ config.json)
 let TELEGRAM_BOT_TOKEN;
 let TELEGRAM_CHAT_ID;
 let DOMAINS = [];
-let CHECK_INTERVAL_SECONDS = 60;
 
 // Load configuration from config.json
 function loadConfig() {
@@ -34,7 +42,6 @@ function loadConfig() {
     const defaultApiToken = defaults.apiToken;
     const defaultTtl = defaults.ttl || 60;
     const defaultProxied = defaults.proxied || false;
-    CHECK_INTERVAL_SECONDS = defaults.checkIntervalSeconds || 60;
 
     // Domains
     if (config.domains && Array.isArray(config.domains)) {
@@ -291,6 +298,32 @@ async function checkAndUpdate() {
 let timer = null;
 let isShuttingDown = false;
 
+// Hàm startup với retry - đảm bảo lần kiểm tra đầu tiên thành công
+async function startupWithRetry() {
+  console.log(`[${new Date().toISOString()}] 🔄 Đợi ${STARTUP_DELAY_SECONDS}s để network sẵn sàng...`);
+  await new Promise(r => setTimeout(r, STARTUP_DELAY_SECONDS * 1000));
+
+  for (let attempt = 1; attempt <= STARTUP_RETRIES; attempt++) {
+    console.log(`[${new Date().toISOString()}] 🚀 Thử kiểm tra startup (lần ${attempt}/${STARTUP_RETRIES})...`);
+
+    const publicIp = await getPublicIp();
+    if (publicIp) {
+      console.log(`[${new Date().toISOString()}] ✅ Network sẵn sàng, IP hiện tại: ${publicIp}`);
+      await checkAndUpdate();
+      return true;
+    }
+
+    if (attempt < STARTUP_RETRIES) {
+      const delay = Math.min(5000 * attempt, 30000); // 5s, 10s, 15s, ...
+      console.warn(`[${new Date().toISOString()}] ⚠️  Chưa lấy được IP, thử lại sau ${delay/1000}s...`);
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+
+  console.error(`[${new Date().toISOString()}] ❌ Không thể lấy IP sau ${STARTUP_RETRIES} lần thử. Sẽ tiếp tục thử theo chu kỳ thông thường...`);
+  return false;
+}
+
 // Hàm lặp với setTimeout đệ quy (tránh race condition)
 function scheduleNextCheck() {
   if (isShuttingDown) return;
@@ -340,7 +373,9 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 // Khởi động
 console.log(`[${new Date().toISOString()}] 🚀 Bắt đầu script Dynamic DNS...`);
 validateConfig();
-checkAndUpdate().then(() => {
+console.log(`[${new Date().toISOString()}] ⚙️  Startup delay: ${STARTUP_DELAY_SECONDS}s, Startup retries: ${STARTUP_RETRIES}, Check interval: ${CHECK_INTERVAL_SECONDS}s`);
+
+startupWithRetry().then(() => {
   console.log(`[${new Date().toISOString()}] ⏰ Lập lịch kiểm tra tiếp theo sau ${CHECK_INTERVAL_SECONDS} giây...`);
   scheduleNextCheck();
 });
