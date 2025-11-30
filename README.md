@@ -154,29 +154,58 @@ Mỗi domain có thể có các thuộc tính sau:
 
 ## 🚀 Sử dụng
 
-### Chạy script thủ công
+### Chạy script bằng pm2
 
+* Cài đặt PM2 (nếu chưa có)
 ```bash
-node cloudflare-ddns.js
+npm install pm2 -g
+```
+
+* Di chuyển đến thư mục dự án rồi khởi chạy
+```bash
+pm2 start ecosystem.config.js
+```
+
+* Đảm bảo PM2 khởi động cùng hệ thống (sau khi reboot):
+```bash
+pm2 save
+```
+```bash
+pm2 startup
+```
+
+* Xem log
+```bash
+pm2 logs cloudflare-ddns
 ```
 
 ### Output mẫu
 
 ```
-[2025-01-15T10:30:00.000Z] 🚀 Bắt đầu script Dynamic DNS...
-[2025-01-15T10:30:00.100Z] 📄 Đọc cấu hình từ config.json
-[2025-01-15T10:30:00.150Z] ✅ Cấu hình hợp lệ: 3 domain(s)
-  - example.com (Zone: 12345678..., Token: abcdefghij..., TTL: 60s, Proxied: false)
-  - www.example.com (Zone: 12345678..., Token: abcdefghij..., TTL: 60s, Proxied: false)
-  - another-domain.com (Zone: 87654321..., Token: zyxwvutsrq..., TTL: 120s, Proxied: true)
-[2025-01-15T10:30:01.000Z] A record cho example.com đã khớp (203.0.113.10), bỏ qua.
-[2025-01-15T10:30:01.200Z] A record cho www.example.com khác (203.0.113.5 vs 203.0.113.10), đang cập nhật...
-[2025-01-15T10:30:02.000Z] Đã cập nhật A record cho www.example.com thành 203.0.113.10 (TTL: 60s, Proxied: false)
-[2025-01-15T10:30:02.500Z] Đã gửi thông báo Telegram: 🌐 *Cập nhật DNS thành công* 🌐...
-[2025-01-15T10:30:02.600Z] ⏰ Lập lịch kiểm tra tiếp theo sau 60 giây...
+2025-11-30T23:34:27: [2025-11-30T16:34:27.718Z] 🚀 Bắt đầu script Dynamic DNS...
+2025-11-30T23:34:27: [2025-11-30T16:34:27.719Z] 📄 Đọc cấu hình từ config.json
+2025-11-30T23:34:27: [2025-11-30T16:34:27.719Z] ✅ Load config thành công (lần 1)
+2025-11-30T23:34:27: [2025-11-30T16:34:27.719Z] ✅ Cấu hình hợp lệ: 1 domain(s)
+2025-11-30T23:34:27:   - tamcongnghe.com (Zone: 5e2a9a45..., Token: aKPyQX74c9..., TTL: 60s, Proxied: false)
+2025-11-30T23:34:27: [2025-11-30T16:34:27.719Z] ⚙️ Startup delay: 60s, Startup retries: 5, Check interval: 60s
+2025-11-30T23:34:27: [2025-11-30T16:34:27.720Z] 📊 Đã thiết lập báo cáo hàng ngày lúc 8h sáng (GMT+7)
+2025-11-30T23:34:27: [2025-11-30T16:34:27.720Z] 🔄 Đợi 60s để hệ thống ổn định...
+2025-11-30T23:35:27: [2025-11-30T16:35:27.740Z] 🚀 Thử kiểm tra startup (lần 1/5)...
+2025-11-30T23:35:27: [2025-11-30T16:35:27.741Z] 🔄 Đang chờ network sẵn sàng (tối đa 180s)...
+2025-11-30T23:35:27: [2025-11-30T16:35:27.741Z] 🔍 Đang lấy IP từ: https://api.ipify.org?format=json
+2025-11-30T23:35:28: [2025-11-30T16:35:28.222Z] ✅ Lấy IP thành công: 14.247.122.72 từ https://api.ipify.org?format=json
+2025-11-30T23:35:28: [2025-11-30T16:35:28.222Z] ✅ Network sẵn sàng, IP: 14.247.122.72
+2025-11-30T23:35:28: [2025-11-30T16:35:28.222Z] ✅ Network sẵn sàng, IP hiện tại: 14.247.122.72
+2025-11-30T23:35:28: [2025-11-30T16:35:28.222Z] 🔄 Thực hiện kiểm tra đầu tiên...
+2025-11-30T23:35:28: [2025-11-30T16:35:28.222Z] 🔍 Đang lấy IP từ: https://api.ipify.org?format=json
+2025-11-30T23:35:28: [2025-11-30T16:35:28.510Z] ✅ Lấy IP thành công: 14.247.122.72 từ https://api.ipify.org?format=json
+2025-11-30T23:35:29: [2025-11-30T16:35:29.151Z] A record cho tamcongnghe.com đã khớp (14.247.122.72), bỏ qua.
+2025-11-30T23:35:29: [2025-11-30T16:35:29.151Z] ⏰ Lập lịch kiểm tra định kỳ mỗi 60 giây...
+2025-11-30T23:36:29: [2025-11-30T16:36:29.151Z] 🔍 Đang lấy IP từ: https://api.ipify.org?format=json
+2025-11-30T23:36:29: [2025-11-30T16:36:29.644Z] ✅ Lấy IP thành công: 14.247.122.72 từ https://api.ipify.org?format=json
+2025-11-30T23:36:30: [2025-11-30T16:36:30.069Z] A record cho tamcongnghe.com đã khớp (14.247.122.72), bỏ qua.
+2025-11-30T23:37:29: [2025-11-30T16:37:29.151Z] 🔍 Đang lấy IP từ: https://api.ipify.org?format=json
 ```
-
-## 🔄 nên cài pm2 và chạy bằng pm2
 
 ## 🔧 Xử lý sự cố
 
@@ -186,6 +215,7 @@ node cloudflare-ddns.js
 - Node.js đã cài đúng phiên bản chưa: `node --version` (cần >= 18.0.0)
 - File `config.json` có tồn tại không
 - Cấu hình JSON có đúng cú pháp không
+- Cài PM2 chưa
 
 **Giải pháp**:
 ```bash
